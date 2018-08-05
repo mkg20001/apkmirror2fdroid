@@ -1,0 +1,28 @@
+{
+  "name": "apkmirror2fdroid",
+  "version": "0.0.1",
+  "description": "Mirror packages from apkmirror.com to your F-Droid Repo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "apkmirror",
+    "fdroid",
+    "mirror"
+  ],
+  "author": "Maciej Krüger <mkg20001@gmail.com>",
+  "license": "MPL-2.0",
+  "dependencies": {
+    "apkmirror-client": "github:mkg20001/apkmirror-client",
+    "bull": "^3.4.4",
+    "hapi": "^17.5.3",
+    "mongoose": "^5.2.6",
+    "page": "^1.8.6",
+    "parcel-bundler": "^1.9.7",
+    "parcel-plugin-pug": "file:parcel-plugin-pug",
+    "pug": "^2.0.3",
+    "request": "^2.87.0",
+    "whatwg-fetch": "^2.0.4"
+  }
+}
