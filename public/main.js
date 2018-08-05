@@ -44,6 +44,9 @@ page('/search/:query', middle('search?query=$query'), (ctx) => {
 
 const tmplAdd = require('./templates/add.pug')
 page('/add/:id', middle('getAppInfo/$id'), (ctx) => {
+  if (ctx.api.alreadyInDB) {
+    return page.redirect('/app/' + ctx.api.alreadyInDB)
+  }
   ctx.api.notes = ctx.api.notes.split('\n')
   $('.page').html(tmplAdd(ctx.api))
 })

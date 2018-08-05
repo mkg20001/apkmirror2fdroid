@@ -23,8 +23,11 @@ module.exports = {
     },
     versions: Array
   }),
-  Version: {
-    appId: String
-
+  Variant: {
+    appId: String,
+    name: String,
+    url: String,
+    version: String,
+    versionUrl: String
   }
 }

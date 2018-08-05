@@ -18,11 +18,13 @@
     "bull": "^3.4.4",
     "hapi": "^17.5.3",
     "mongoose": "^5.2.6",
-    "page": "^1.8.6",
+    "request": "^2.87.0"
+  },
+  "devDependencies": {
     "parcel-bundler": "^1.9.7",
     "parcel-plugin-pug": "file:parcel-plugin-pug",
     "pug": "^2.0.3",
-    "request": "^2.87.0",
+    "page": "^1.8.6",
     "whatwg-fetch": "^2.0.4"
   }
 }

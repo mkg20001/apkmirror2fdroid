@@ -2,7 +2,7 @@
 
 const Hapi = require('hapi')
 const Joi = require('joi')
-const {App, Version} = require('./db')
+const {App, Variant} = require('./db')
 const prom = (fnc) => new Promise((resolve, reject) => fnc((err, res) => err ? reject(err) : resolve(res)))
 const apk = require('apkmirror-client')
 const request = require('request')
@@ -41,7 +41,7 @@ server.route({
         url: r.app.url,
         devUrl: r.dev.url,
         info: r.info,
-        addUrl: '/add/' + Buffer.from(r.app.url).toString('base64')
+        addUrl: '/add/_' + Buffer.from(r.app.url).toString('base64')
       }
     })
   }
@@ -67,12 +67,37 @@ server.route({
   method: 'GET',
   path: '/getAppInfo/{id}',
   handler: async (req, h) => {
-    return prom(cb => {
-      apk.getAppPage({
-        app: {url: String(Buffer.from(req.params.id, 'base64'))}
-      }, cb)
+    let id = req.params.id
+    let app
+
+    if (id.startsWith('_')) {
+      let url = String(Buffer.from(req.params.id.substr(1), 'base64'))
+      app = await prom(cb => App.findOne({app: {url}}, cb))
+      if (app) {
+        return {alreadyInDB: app.id}
+      }
+
+      app = await prom(cb => {
+        apk.getAppPage({
+          app: {url}
+        }, cb)
+      })
+    } else {
+      app = await prom(cb => App.findOne({id}, cb))
+      if (!app) {
+        return {notFound: true}
+      }
+    }
+
+    let variants = app.id ? await prom(cb => Variant.find({appId: app.id}, cb)) : []
+
+    app.variants.forEach(variant => {
+      variant.enabled = Boolean(variants.filter(v => v.name === variant.name).length)
     })
+
+    return app
   }
+
 })
 
 server.route({

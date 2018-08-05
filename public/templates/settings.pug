@@ -15,5 +15,8 @@ div(class="jumbotron")
     tt=note
     br
 
-  h3 Please make sure this is the right app and then continue
-  div(class="btn btn-primary", id="addApp") Add App
+  h2 Variants
+  ul
+    each variant in variants
+      li
+        a(href=variant.addUrl)= variant.name
