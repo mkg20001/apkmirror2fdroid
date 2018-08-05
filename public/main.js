@@ -24,20 +24,22 @@ page('/', middle('apps'), (ctx) => {
 /* Search */
 
 const tmplSearch = require('./templates/search.pug')
-page('/search', (ctx) => {
-  $('.page').html(tmplSearch({results: [], query: ''}))
+
+function appSearch () {
   $('#search').on('submit', e => {
     e.preventDefault()
     page('/search/' + $('#search-val').val())
   })
+}
+
+page('/search', (ctx) => {
+  $('.page').html(tmplSearch({results: [], query: ''}))
+  appSearch()
 })
 
 page('/search/:query', middle('search?query=$query'), (ctx) => {
   $('.page').html(tmplSearch({results: ctx.api, query: ctx.params.query}))
-  $('#search').on('submit', e => {
-    e.preventDefault()
-    page('/search/' + $('#search-val').val())
-  })
+  appSearch()
 })
 
 /* Add app */
