@@ -42,8 +42,10 @@ page('/search/:query', middle('search?query=$query'), (ctx) => {
 
 /* Add app */
 
-page('/add/:id', () => {
-
+const tmplAdd = require('./templates/add.pug')
+page('/add/:id', middle('getAppInfo/$id'), (ctx) => {
+  ctx.api.notes = ctx.api.notes.split('\n')
+  $('.page').html(tmplAdd(ctx.api))
 })
 
 const tmpl404 = require('./templates/404.pug')
@@ -54,12 +56,14 @@ page('*', (ctx) => {
 page({})
 
 if (module.hot) {
-  module.hot.dispose(function () {
+  module.hot.dispose(() => window.location.reload())
+
+  /* module.hot.dispose(function () {
     page.stop()
     $('.page').html('...')
   })
 
   module.hot.accept(function () {
     page({})
-  })
+  }) */
 }

@@ -41,7 +41,7 @@ server.route({
         url: r.app.url,
         devUrl: r.dev.url,
         info: r.info,
-        addId: Buffer.from(r.app.url).toString('base64')
+        addUrl: '/add/' + Buffer.from(r.app.url).toString('base64')
       }
     })
   }
@@ -60,6 +60,18 @@ server.route({
   handler: async (req, h) => {
     const res = await prom(cb => request({url: req.query.proxy, encoding: null}, (err, _, res) => cb(err, res)))
     return h.response(res).header('Content-Type', 'image/png')
+  }
+})
+
+server.route({
+  method: 'GET',
+  path: '/getAppInfo/{id}',
+  handler: async (req, h) => {
+    return prom(cb => {
+      apk.getAppPage({
+        app: {url: String(Buffer.from(req.params.id, 'base64'))}
+      }, cb)
+    })
   }
 })
 
