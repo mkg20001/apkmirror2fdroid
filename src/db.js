@@ -20,14 +20,14 @@ module.exports = {
       display: String,
       name: String,
       url: String
-    },
-    versions: Array
+    }
   }),
-  Variant: {
+  Variant: mongoose.model('Variant', {
     appId: String,
     name: String,
     url: String,
     version: String,
-    versionUrl: String
-  }
+    versionUrl: String,
+    curVersionUrl: String
+  })
 }

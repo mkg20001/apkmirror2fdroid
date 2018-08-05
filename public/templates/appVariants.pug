@@ -1,5 +1,10 @@
-h2 Variants
+h2 Variants/Channels
 ul
   each variant in variants
     li
-      a(href=variant.addUrl)= variant.name
+      span
+        input(id=variant.id, type="checkbox", checked=variant.enabled || (!id && variant.isLatest))
+      if variant.isLatest
+        span <b>#{variant.androidVer} #{variant.arch} #{variant.dpi} - #{variant.version}</b>
+      unless variant.isLatest
+        span #{variant.androidVer} #{variant.arch} #{variant.dpi} - #{variant.version}

@@ -6,7 +6,7 @@ const page = require('page')
 const $ = require('jquery')
 const fetch = window.fetch || require('whatwg-fetch')
 
-const api = (u) => fetch('http://localhost:5334/' + u)
+const api = (u, ...a) => fetch('http://localhost:5334/' + u, ...a)
 const middle = (url) => (ctx, next) => { // fetch URLs as middleware
   api(url.replace(/\$([a-z0-9]+)/gmi, (_, param) => ctx.params[param])).then(res => res.json()).then(res => {
     ctx.api = res
@@ -45,12 +45,29 @@ page('/search/:query', middle('search?query=$query'), (ctx) => {
 /* Add app */
 
 const tmplAdd = require('./templates/add.pug')
-page('/add/:id', middle('getAppInfo/$id'), (ctx) => {
+
+function appPage (app) {
+  $('#settingsSave').on('click', e => {
+    e.preventDefault()
+    let variants = $('input[type=checkbox]').toArray().filter(e => $(e).is(':checked')).map(e => e.id)
+    api('app/' + app, {
+      method: 'POST',
+      body: JSON.stringify({
+        variants
+      })
+    }).then(res => res.json()).then(res => {
+      page('/app/' + res.id + '/?success=' + (res.success || 'false'))
+    })
+  })
+}
+
+page('/add/:id', middle('app/$id'), (ctx) => {
   if (ctx.api.alreadyInDB) {
     return page.redirect('/app/' + ctx.api.alreadyInDB)
   }
   ctx.api.notes = ctx.api.notes.split('\n')
   $('.page').html(tmplAdd(ctx.api))
+  appPage(ctx.params.id)
 })
 
 const tmpl404 = require('./templates/404.pug')
