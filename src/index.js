@@ -11,6 +11,9 @@ const apk = require('apkmirror-client')
 const prom = (fnc) => new Promise((resolve, reject) => fnc((err, res) => err ? reject(err) : resolve(res)))
 const request = require('request')
 
+const fs = require('fs')
+const path = require('path')
+
 const crypto = require('crypto')
 const shortHash = (str) => {
   let hash = crypto.createHash('sha512').update(str).digest('hex')
@@ -138,7 +141,6 @@ server.route({
     let newVariants = app.variants.filter(v => req.payload.variants.indexOf(v.id) !== -1)
     let newIds = req.payload.variants
     let currentVariants = app.variants.filter(v => v.enabled)
-    let currentIds = currentVariants.filter(v => v.id)
 
     await Promise.all( // drop old
       currentVariants
@@ -147,7 +149,7 @@ server.route({
 
     await Promise.all( // add new
       newVariants
-        .filter(v => currentIds.indexOf(v.id) === -1)
+        .filter(v => !v.enabled)
         .map(v => prom(cb => new Variant(Object.assign(v, {appId: app.id})).save(cb)))
     )
 
@@ -204,21 +206,29 @@ checkQueue.process(async (job, done) => {
 
 downloadQueue.process(async (job, done) => {
   const variant = await prom(cb => Variant.findOne({_id: job.data.variant}, cb))
-  if (!variant) { // vanished
+  const app = await prom(cb => App.findOne({_id: variant.appId}, cb))
+  if (!variant || !app) { // vanished
     return done()
   }
   if (variant.curVersionUrl !== variant.versionUrl) {
-    console.log('Download %s %s...', variant.versionUrl, variant.name)
+    console.log('Download %s %s %s...', app.app.name, variant.versionUrl, variant.name)
     const page = await prom(cb => apk.getReleasePage(variant.versionUrl, cb))
     const v = page.variants.filter(v => v.arch === variant.arch && v.androidVer === variant.androidVer && v.dpi === variant.dpi)[0]
     const variantPage = await prom(cb => v.loadVariant(cb))
     let size = parseInt(variantPage.size.match(/([\d,]+) bytes/)[1].replace(/,/g, ''), 10)
     const stream = await prom(cb => variantPage.downloadAPK(cb))
     let dlSize = 0
+    let outname = [app.play.id, variant.arch, variant.androidVer, variant.dpi, v.id].join('_').replace(/[^a-z0-9]/gmi, '_') + '.apk'
     stream.on('data', data => {
       dlSize += data.length
-      console.log(dlSize / size)
+      job.progress(dlSize / size)
     })
+    stream.pipe(fs.createWriteStream(path.join(process.cwd(), 'out', outname)))
+    await prom(cb => stream.once('end', cb))
+    console.log('Done')
+    variant.curVersionUrl = variant.versionUrl
+    await prom(cb => variant.save(cb))
+    done()
   }
 })
 

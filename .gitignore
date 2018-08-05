@@ -4,3 +4,4 @@ dist
 docs
 .cache
 *.bak
+out
