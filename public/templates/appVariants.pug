@@ -5,6 +5,9 @@ ul
       span
         input(id=variant.id, type="checkbox", checked=variant.enabled || (!id && variant.isLatest))
       if variant.isLatest
-        span <b>#{variant.androidVer} #{variant.arch} #{variant.dpi} - #{variant.version}</b>
+        span
+          b
+            include variant
       unless variant.isLatest
-        span #{variant.androidVer} #{variant.arch} #{variant.dpi} - #{variant.version}
+        span
+          include variant

@@ -12,3 +12,6 @@ ul
     a(href=play.url) PlayStore
   li
     a(href=dev.url) Developer Page
+  if settingsUrl
+    li
+      <a href="/app/#{id}">Settings</a>

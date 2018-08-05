@@ -80,6 +80,7 @@ page('/app/:id', middle('app/$id'), (ctx, next) => {
   }
   ctx.api.notes = ctx.api.notes.split('\n')
   $('.page').html(tmplSettings(ctx.api))
+  appPage(ctx.params.id)
 })
 
 const tmpl404 = require('./templates/404.pug')

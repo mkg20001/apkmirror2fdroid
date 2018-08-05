@@ -1,3 +1,7 @@
 .search-result-title {
   display: flex;
 }
+
+.jumbotron {
+  padding: 2rem !important;
+}

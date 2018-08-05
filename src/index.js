@@ -69,6 +69,18 @@ server.route({
   }
 })
 
+const variantsUpdate = async (app) => {
+  let variants = app.id ? await prom(cb => Variant.find({appId: app.id}, cb)) : []
+
+  app.variants.forEach(variant => {
+    variant._db = variants.filter(v => v.name === variant.name)[0]
+    variant.enabled = Boolean(variant._db)
+    variant.id = shortHash(variant.url)
+  })
+
+  return app
+}
+
 const appGet = async (req, h) => {
   let id = req.params.id
   let app
@@ -92,15 +104,7 @@ const appGet = async (req, h) => {
     }
   }
 
-  let variants = app.id ? await prom(cb => Variant.find({appId: app.id}, cb)) : []
-
-  app.variants.forEach(variant => {
-    variant._db = variants.filter(v => v.name === variant.name)[0]
-    variant.enabled = Boolean(variant._db)
-    variant.id = shortHash(variant.url)
-  })
-
-  return app
+  return variantsUpdate(app)
 }
 
 server.route({
@@ -144,6 +148,7 @@ server.route({
         .map(v => prom(cb => new Variant(Object.assign(v, {appId: app.id})).save(cb)))
     )
 
+    await variantsUpdate(app)
     app.markModified('variants')
     await prom(cb => app.save(cb))
 

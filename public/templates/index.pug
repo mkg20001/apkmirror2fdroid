@@ -1,6 +1,31 @@
 h1 APKMirror to F-Droid
 h2 Currently mirroring:
+- var settingsUrl = true
 div
   each app in apps
-    h2
-      a(href="/apps/#{app.id}")= app.app.name
+    div(class="jumbotron")
+      - var dev = app.dev
+      - var play = app.play
+      - var id = app._id
+      - var lastCheck = app.lastCheck
+      - var variants = app.variants
+      - var app = app.app
+      include appInfo
+      h4 Variants
+      ul
+        for variant in variants
+          if variant.enabled
+            li
+              if variant.isLatest
+                span
+                  b
+                    include variant
+              unless variant.isLatest
+                span
+                  include variant
+      p Last update check: #{lastCheck}
+unless apps.length
+  div(class="jumbotron")
+    h1
+      i Nothing here
+    a(href="/search", class="btn btn-primary") Search for apps to add
