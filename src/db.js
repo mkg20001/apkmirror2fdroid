@@ -31,6 +31,9 @@ module.exports = {
     url: String,
     version: String,
     versionUrl: String,
-    curVersionUrl: String
+    curVersionUrl: String,
+    arch: String,
+    androidVer: String,
+    dpi: String
   })
 }

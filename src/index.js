@@ -177,7 +177,7 @@ const downloadQueue = new Queue('downloading')
 const checkQueue = new Queue('update checks')
 
 const SHARED_APP = ['play', 'app', 'dev', 'notes', 'variants']
-const SHARED_VARIANT = ['name', 'url', 'version', 'versionUrl']
+const SHARED_VARIANT = ['name', 'url', 'version', 'versionUrl', 'arch', 'androidVer', 'dpi']
 
 checkQueue.process(async (job, done) => {
   const app = await prom(cb => App.findOne({_id: job.data.app}, cb))
@@ -209,6 +209,16 @@ downloadQueue.process(async (job, done) => {
   }
   if (variant.curVersionUrl !== variant.versionUrl) {
     console.log('Download %s %s...', variant.versionUrl, variant.name)
+    const page = await prom(cb => apk.getReleasePage(variant.versionUrl, cb))
+    const v = page.variants.filter(v => v.arch === variant.arch && v.androidVer === variant.androidVer && v.dpi === variant.dpi)[0]
+    const variantPage = await prom(cb => v.loadVariant(cb))
+    let size = parseInt(variantPage.size.match(/([\d,]+) bytes/)[1].replace(/,/g, ''), 10)
+    const stream = await prom(cb => variantPage.downloadAPK(cb))
+    let dlSize = 0
+    stream.on('data', data => {
+      dlSize += data.length
+      console.log(dlSize / size)
+    })
   }
 })
 
