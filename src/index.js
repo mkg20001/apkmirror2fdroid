@@ -245,6 +245,16 @@ const init = async () => {
   console.log(`Server running at: ${server.info.uri}`)
 }
 
+setInterval(() => {
+  console.log('Update cron...')
+  App.find((err, res) => {
+    if (err) throw err
+    res.forEach(app => {
+      checkQueue.add({app: app.id})
+    })
+  })
+}, 6 * 3600 * 1000)
+
 process.on('unhandledRejection', (err) => {
   console.log(err)
   process.exit(1)
