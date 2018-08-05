@@ -1,19 +1,12 @@
 div(class="jumbotron")
-  h1= app.name
-  h4= dev.display
-
-  ul
-    li
-      a(href=app.url) APKDroid
-    li
-      a(href=play.url) PlayStore
-    li
-      a(href=dev.url) Developer Page
+  include appInfo
 
   h2 Description
   each note in notes
     tt=note
     br
 
-  h3 Please make sure this is the right app and then continue
+  include appVariants
+
+  h4 Please make sure this is the right app, select the right variants and then continue
   div(class="btn btn-primary", id="addApp") Add App
