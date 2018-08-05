@@ -1,7 +1,7 @@
 div(class="jumbotron")
   include appInfo
 
-  h2(onclick='$("#hiddenDesc").show()') Description
+  h2(onclick='$("#hiddenDesc").show()') Description (click to show)
   div(style="display: none", id="hiddenDesc")
     each note in notes
       tt=note

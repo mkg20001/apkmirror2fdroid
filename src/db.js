@@ -20,7 +20,9 @@ module.exports = {
       display: String,
       name: String,
       url: String
-    }
+    },
+    notes: String,
+    variants: Array
   }),
   Variant: mongoose.model('Variant', {
     appId: String,

@@ -70,6 +70,18 @@ page('/add/:id', middle('app/$id'), (ctx) => {
   appPage(ctx.params.id)
 })
 
+/* App settings */
+
+const tmplSettings = require('./templates/settings.pug')
+
+page('/app/:id', middle('app/$id'), (ctx, next) => {
+  if (ctx.notFound) {
+    return next()
+  }
+  ctx.api.notes = ctx.api.notes.split('\n')
+  $('.page').html(tmplSettings(ctx.api))
+})
+
 const tmpl404 = require('./templates/404.pug')
 page('*', (ctx) => {
   $('.page').html(tmpl404(ctx))

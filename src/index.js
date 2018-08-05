@@ -86,7 +86,7 @@ const appGet = async (req, h) => {
       }, cb)
     })
   } else {
-    app = await prom(cb => App.findOne({id}, cb))
+    app = await prom(cb => App.findOne({_id: id}, cb))
     if (!app) {
       return {notFound: true}
     }
@@ -123,12 +123,14 @@ server.route({
     const res = await appGet(req, h)
     if (res.notFound || res.alreadyInDB) return res
     let app
-    if (!res.id) app = new App(res)
-    else app = res
+    if (!res.id) {
+      app = new App(res)
+      await prom(cb => app.save(cb)) // so we get an id
+    } else app = res
 
-    let newVariants = res.variants.filter(v => req.payload.variants.indexOf(v.id) !== -1)
+    let newVariants = app.variants.filter(v => req.payload.variants.indexOf(v.id) !== -1)
     let newIds = req.payload.variants
-    let currentVariants = res.variants.filter(v => v.enabled)
+    let currentVariants = app.variants.filter(v => v.enabled)
     let currentIds = currentVariants.filter(v => v.id)
 
     await Promise.all( // drop old
@@ -139,9 +141,10 @@ server.route({
     await Promise.all( // add new
       newVariants
         .filter(v => currentIds.indexOf(v.id) === -1)
-        .map(v => prom(cb => new Variant(v).save(cb)))
+        .map(v => prom(cb => new Variant(Object.assign(v, {appId: app.id})).save(cb)))
     )
 
+    app.markModified('variants')
     await prom(cb => app.save(cb))
 
     return {success: true, id: app.id}
