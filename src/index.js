@@ -2,19 +2,22 @@
 
 const Hapi = require('hapi')
 const Joi = require('joi')
-const {App, Variant} = require('./db')
-const prom = (fnc) => new Promise((resolve, reject) => fnc((err, res) => err ? reject(err) : resolve(res)))
-const apk = require('apkmirror-client')
-const request = require('request')
 
 const mongoose = require('mongoose')
 mongoose.connect('mongodb://localhost/apk2fdroid')
+const {App, Variant} = require('./db')
+
+const apk = require('apkmirror-client')
+const prom = (fnc) => new Promise((resolve, reject) => fnc((err, res) => err ? reject(err) : resolve(res)))
+const request = require('request')
 
 const crypto = require('crypto')
 const shortHash = (str) => {
   let hash = crypto.createHash('sha512').update(str).digest('hex')
   return hash.substr(parseInt(hash.substr(0, 1), 16), 16)
 }
+
+/* Server */
 
 const server = Hapi.server({
   port: 5334,
@@ -152,6 +155,8 @@ server.route({
     app.markModified('variants')
     await prom(cb => app.save(cb))
 
+    checkQueue.add({app: app.id})
+
     return {success: true, id: app.id}
   }
 })
@@ -161,6 +166,49 @@ server.route({
   path: '/apps',
   handler: (request, h) => {
     return App.find({})
+  }
+})
+
+/* Queues */
+
+const Queue = require('bull')
+
+const downloadQueue = new Queue('downloading')
+const checkQueue = new Queue('update checks')
+
+const SHARED_APP = ['play', 'app', 'dev', 'notes', 'variants']
+const SHARED_VARIANT = ['name', 'url', 'version', 'versionUrl']
+
+checkQueue.process(async (job, done) => {
+  const app = await prom(cb => App.findOne({_id: job.data.app}, cb))
+  if (!app) { // vanished
+    return done()
+  }
+  console.log('Update check for %s...', app.app.name)
+
+  const page = await prom(cb => apk.getAppPage(app, cb))
+  SHARED_APP.forEach(key => (app[key] = page[key]))
+  await variantsUpdate(app)
+  app.lastCheck = Date.now()
+
+  await Promise.all(app.variants.filter(v => v.enabled).map(async (v) => {
+    SHARED_VARIANT.forEach(key => (v._db[key] = v[key]))
+    await prom(cb => v._db.save(cb))
+    if (v._db.curVersionUrl !== v.versionUrl) {
+      downloadQueue.add({variant: v._db.id}, {attempts: 10, backoff: 'jitter'})
+    }
+  }))
+
+  return done()
+})
+
+downloadQueue.process(async (job, done) => {
+  const variant = await prom(cb => Variant.findOne({_id: job.data.variant}, cb))
+  if (!variant) { // vanished
+    return done()
+  }
+  if (variant.curVersionUrl !== variant.versionUrl) {
+    console.log('Download %s %s...', variant.versionUrl, variant.name)
   }
 })
 
