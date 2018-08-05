@@ -1,1 +1,6 @@
-h2 Test
+h1 APKMirror 2 F-Droid
+h2 Currently mirroring:
+div
+  each app in apps
+    h2
+      a(href="/apps/#{app.id}")= app.app.name

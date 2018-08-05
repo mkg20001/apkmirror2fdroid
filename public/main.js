@@ -2,7 +2,6 @@
 
 /* eslint-env module */
 
-const tmplIndex = require('./templates/index.pug')
 const page = require('page')
 const $ = require('jquery')
 const fetch = window.fetch || require('whatwg-fetch')
@@ -15,14 +14,31 @@ const middle = (url) => (ctx, next) => { // fetch URLs as middleware
   })
 }
 
+const tmplIndex = require('./templates/index.pug')
 page('/', middle('apps'), (ctx) => {
-  try {
-    $('.page').html(tmplIndex({apps: ctx.api}))
-  } catch (e) {
-    console.log(e)
-  }
+  $('.page').html(tmplIndex({apps: ctx.api}))
+})
+
+const tmplSearch = require('./templates/search.pug')
+page('/search/:query', middle('search?query=$query'), (ctx) => {
+  $('.page').html(tmplSearch({results: ctx.api}))
+  $('#search').on('submit', e => {
+    e.preventDefault()
+    page('/search/' + $('#search-val').val())
+  })
 })
 
 page('*', console.log)
 
 page({})
+
+if (module.hot) {
+  module.hot.dispose(function () {
+    page.stop()
+    $('.page').html('...')
+  })
+
+  module.hot.accept(function () {
+    page({})
+  })
+}
