@@ -231,7 +231,7 @@ downloadQueue.process(async (job, done) => {
       dlSize += data.length
       job.progress(dlSize / size)
     })
-    stream.pipe(fs.createWriteStream(path.join(process.cwd(), 'out', outname)))
+    stream.pipe(fs.createWriteStream(path.join(process.cwd(), 'repo', 'repo', outname)))
     await prom(cb => stream.once('end', cb))
     console.log('Done')
     variant.curVersionUrl = variant.versionUrl

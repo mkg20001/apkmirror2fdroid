@@ -17,6 +17,7 @@ You need:
 
  - [x] Adding Apps
  - [ ] Repo settings
- - [ ] Update checks
- - [ ] Download apps
+ - [x] Update checks
+ - [x] Download apps
  - [ ] Update repo
+ - [ ] Write metadata to repo
