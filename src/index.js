@@ -201,6 +201,8 @@ checkQueue.process(async (job, done) => {
     }
   }))
 
+  await prom(cb => app.save(cb))
+
   return done()
 })
 
