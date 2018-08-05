@@ -14,12 +14,24 @@ const middle = (url) => (ctx, next) => { // fetch URLs as middleware
   })
 }
 
+/* Index */
+
 const tmplIndex = require('./templates/index.pug')
 page('/', middle('apps'), (ctx) => {
   $('.page').html(tmplIndex({apps: ctx.api}))
 })
 
+/* Search */
+
 const tmplSearch = require('./templates/search.pug')
+page('/search', (ctx) => {
+  $('.page').html(tmplSearch({results: []}))
+  $('#search').on('submit', e => {
+    e.preventDefault()
+    page('/search/' + $('#search-val').val())
+  })
+})
+
 page('/search/:query', middle('search?query=$query'), (ctx) => {
   $('.page').html(tmplSearch({results: ctx.api}))
   $('#search').on('submit', e => {
@@ -28,7 +40,16 @@ page('/search/:query', middle('search?query=$query'), (ctx) => {
   })
 })
 
-page('*', console.log)
+/* Add app */
+
+page('/add/:id', () => {
+
+})
+
+const tmpl404 = require('./templates/404.pug')
+page('*', (ctx) => {
+  $('.page').html(tmpl404(ctx))
+})
 
 page({})
 
