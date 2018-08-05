@@ -145,7 +145,7 @@ server.route({
     await Promise.all( // drop old
       currentVariants
         .filter(v => newIds.indexOf(v.id) === -1)
-        .map(v => prom(cb => v._db.delete(cb))))
+        .map(v => prom(cb => v._db.remove(cb))))
 
     await Promise.all( // add new
       newVariants
@@ -184,6 +184,7 @@ const SHARED_VARIANT = ['name', 'url', 'version', 'versionUrl', 'arch', 'android
 checkQueue.process(async (job, done) => {
   const app = await prom(cb => App.findOne({_id: job.data.app}, cb))
   if (!app) { // vanished
+    console.error('App %s vanished...', job.data.app)
     return done()
   }
   console.log('Update check for %s...', app.app.name)
@@ -208,8 +209,13 @@ checkQueue.process(async (job, done) => {
 
 downloadQueue.process(async (job, done) => {
   const variant = await prom(cb => Variant.findOne({_id: job.data.variant}, cb))
+  if (!variant) { // vanished
+    console.error('Variant %s vanished...', job.data.variant)
+    return done()
+  }
   const app = await prom(cb => App.findOne({_id: variant.appId}, cb))
-  if (!variant || !app) { // vanished
+  if (!app) { // vanished
+    console.error('App %s vanished...', variant.appId)
     return done()
   }
   if (variant.curVersionUrl !== variant.versionUrl) {
