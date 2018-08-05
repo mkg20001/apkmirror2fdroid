@@ -40,7 +40,8 @@ server.route({
         by: r.dev.name,
         url: r.app.url,
         devUrl: r.dev.url,
-        info: r.info
+        info: r.info,
+        addId: Buffer.from(r.app.url).toString('base64')
       }
     })
   }

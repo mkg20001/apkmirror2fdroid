@@ -25,7 +25,7 @@ page('/', middle('apps'), (ctx) => {
 
 const tmplSearch = require('./templates/search.pug')
 page('/search', (ctx) => {
-  $('.page').html(tmplSearch({results: []}))
+  $('.page').html(tmplSearch({results: [], query: ''}))
   $('#search').on('submit', e => {
     e.preventDefault()
     page('/search/' + $('#search-val').val())
@@ -33,7 +33,7 @@ page('/search', (ctx) => {
 })
 
 page('/search/:query', middle('search?query=$query'), (ctx) => {
-  $('.page').html(tmplSearch({results: ctx.api}))
+  $('.page').html(tmplSearch({results: ctx.api, query: ctx.params.query}))
   $('#search').on('submit', e => {
     e.preventDefault()
     page('/search/' + $('#search-val').val())
