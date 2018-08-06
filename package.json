@@ -44,5 +44,8 @@
   "bugs": {
     "url": "https://github.com/mkg20001/apkmirror2fdroid/issues"
   },
-  "homepage": "https://github.com/mkg20001/apkmirror2fdroid#readme"
+  "homepage": "https://github.com/mkg20001/apkmirror2fdroid#readme",
+  "contributors": [
+    "Maciej Krüger <mkg20001@gmail.com>"
+  ]
 }
