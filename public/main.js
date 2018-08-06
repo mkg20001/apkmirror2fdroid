@@ -16,6 +16,15 @@ const middle = (url) => (ctx, next) => { // fetch URLs as middleware
   })
 }
 
+const tmplAlert = require('./templates/alert.pug')
+const alert = (type, important, message) => $('.alerts').append(tmplAlert({type, important, message}))
+
+const tmplLoader = require('./templates/loader.pug')
+page((ctx, next) => {
+  $('.page').html(tmplLoader({}))
+  next()
+})
+
 /* Index */
 
 const tmplIndex = require('./templates/index.pug')
@@ -65,6 +74,7 @@ function appPage (app) {
 
 page('/add/:id', middle('app/$id'), (ctx) => {
   if (ctx.api.alreadyInDB) {
+    alert('info', 'Already in Database', 'This app has already been added. Redirecting to settings...')
     return page.redirect('/app/' + ctx.api.alreadyInDB)
   }
   ctx.api.notes = ctx.api.notes.split('\n')
@@ -77,8 +87,9 @@ page('/add/:id', middle('app/$id'), (ctx) => {
 const tmplSettings = require('./templates/settings.pug')
 
 page('/app/:id', middle('app/$id'), (ctx, next) => {
-  if (ctx.notFound) {
-    return next()
+  if (ctx.api.notFound) {
+    alert('danger', 'App not found', 'Perhaps it was deleted or wasn\'t added')
+    return page.redirect('/')
   }
   ctx.api.notes = ctx.api.notes.split('\n')
   $('.page').html(tmplSettings(ctx.api))

@@ -96,7 +96,7 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
 
     if (id.startsWith('_')) {
       let url = String(Buffer.from(req.params.id.substr(1), 'base64'))
-      app = await prom(cb => App.findOne({app: {url}}, cb))
+      app = await prom(cb => App.findOne({'app.url': url}, cb))
       if (app) {
         return {alreadyInDB: app.id}
       }
@@ -107,7 +107,11 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
         }, cb)
       })
     } else {
-      app = await prom(cb => App.findOne({_id: id}, cb))
+      try {
+        app = await prom(cb => App.findOne({_id: id}, cb))
+      } catch (e) {
+        return {notFound: true}
+      }
       if (!app) {
         return {notFound: true}
       }
@@ -257,10 +261,7 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
   return {
     start: async () => {
       await server.register({
-        plugin: require('hapi-pino'),
-        options: {
-          prettyPrint: process.env.NODE_ENV !== 'production'
-        }
+        plugin: require('hapi-pino')
       })
 
       await server.register({
