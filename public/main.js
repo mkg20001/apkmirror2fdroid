@@ -6,7 +6,9 @@ const page = require('page')
 const $ = require('jquery')
 const fetch = window.fetch || require('whatwg-fetch')
 
-const api = (u, ...a) => fetch('http://localhost:5334/' + u, ...a)
+const APIURL = module.hot ? 'http://localhost:5334/' : '/' // use localhost:5334 for dev, otherwise current origin
+
+const api = (u, ...a) => fetch(APIURL + u, ...a)
 const middle = (url) => (ctx, next) => { // fetch URLs as middleware
   api(url.replace(/\$([a-z0-9]+)/gmi, (_, param) => ctx.params[param])).then(res => res.json()).then(res => {
     ctx.api = res

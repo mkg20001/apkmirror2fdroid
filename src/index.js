@@ -30,7 +30,7 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
     host,
     routes: {
       cors: {
-        origin: ['*']
+        origin: process.env.NODE_ENV === 'production' ? [] : ['*']
       }
     }
   })
@@ -262,6 +262,22 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
           prettyPrint: process.env.NODE_ENV !== 'production'
         }
       })
+
+      await server.register({
+        plugin: require('inert')
+      })
+
+      server.route({
+        method: 'GET',
+        path: '/{param*}',
+        handler: {
+          directory: {
+            path: path.join(__dirname, '../assets'),
+            index: true
+          }
+        }
+      })
+
       await server.start()
       upIntv = setInterval(updateCron, updateCheckInterval)
       return server.info.uri
