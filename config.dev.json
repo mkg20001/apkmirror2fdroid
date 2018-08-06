@@ -5,5 +5,6 @@
   "secret": "c786263bad5e2f5eb907b647130ac1c2df8d534ce9f580ddca7a3a98b4b883ea",
   "fdroidRepoPath": "/home/maciej/Projekte/apkmirror2fdroid/repo/repo",
   "port": 5334,
+  "host": "localhost",
   "updateCheckInterval": 21600000
 }

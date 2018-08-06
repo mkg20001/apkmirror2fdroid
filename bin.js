@@ -6,6 +6,7 @@ const crypto = require('crypto')
 const path = require('path')
 const fs = require('fs')
 const Server = require('.')
+const log = require('pino')()
 
 /* eslint-disable no-console */
 
@@ -27,6 +28,7 @@ require('yargs') // eslint-disable-line
         secret: crypto.randomBytes(32).toString('hex'),
         fdroidRepoPath: path.join(process.cwd(), 'repo', 'repo'),
         port: 5334,
+        host: 'localhost',
         updateCheckInterval: 6 * 3600 * 1000
       }
       console.log(JSON.stringify(config, 0, 2))
@@ -46,7 +48,7 @@ require('yargs') // eslint-disable-line
       const conf = JSON.parse(fs.readFileSync(argv.config))
       const server = Server(conf)
       server.start().then((url) => {
-        console.log('Running on %s!', url)
+        log.info({url}, 'Running on %s!', url)
       })
     }
   })

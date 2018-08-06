@@ -18,6 +18,7 @@ const shortHash = (str) => {
   let hash = crypto.createHash('sha512').update(str).digest('hex')
   return hash.substr(parseInt(hash.substr(0, 1), 16), 16)
 }
+const log = require('pino')()
 
 module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, updateCheckInterval}) => {
   mongoose.connect(mongodb)
@@ -186,10 +187,10 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
   checkQueue.process(async (job, done) => {
     const app = await prom(cb => App.findOne({_id: job.data.app}, cb))
     if (!app) { // vanished
-      console.error('App %s vanished...', job.data.app)
+      log.warn({app: job.data.app}, 'App %s vanished...', job.data.app)
       return done()
     }
-    console.log('Update check for %s...', app.app.name)
+    log.info({app: app.app.name}, 'Update check for %s...', app.app.name)
 
     const page = await prom(cb => apk.getAppPage(app, cb))
     SHARED_APP.forEach(key => (app[key] = page[key]))
@@ -212,16 +213,16 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
   downloadQueue.process(async (job, done) => {
     const variant = await prom(cb => Variant.findOne({_id: job.data.variant}, cb))
     if (!variant) { // vanished
-      console.error('Variant %s vanished...', job.data.variant)
+      log.warn({variant: job.data.variant}, 'Variant %s vanished...', job.data.variant)
       return done()
     }
     const app = await prom(cb => App.findOne({_id: variant.appId}, cb))
     if (!app) { // vanished
-      console.error('App %s vanished...', variant.appId)
+      log.warn({app: variant.appId}, 'App %s vanished...', variant.appId)
       return done()
     }
     if (variant.curVersionUrl !== variant.versionUrl) {
-      console.log('Download %s %s %s...', app.app.name, variant.versionUrl, variant.name)
+      log.info({app: app.app.name, version: variant.versionUrl, variant: variant.name}, 'Downloading APK...')
       const page = await prom(cb => apk.getReleasePage(variant.versionUrl, cb))
       const v = page.variants.filter(v => v.arch === variant.arch && v.androidVer === variant.androidVer && v.dpi === variant.dpi)[0]
       const variantPage = await prom(cb => v.loadVariant(cb))
@@ -255,6 +256,12 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
 
   return {
     start: async () => {
+      await server.register({
+        plugin: require('hapi-pino'),
+        options: {
+          prettyPrint: process.env.NODE_ENV !== 'production'
+        }
+      })
       await server.start()
       upIntv = setInterval(updateCron, updateCheckInterval)
       return server.info.uri

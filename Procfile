@@ -1,2 +1,2 @@
 frontend: npx parcel public/index.html
-backend: npx nodemon -x node bin.js ./config.dev.json
+backend: npx nodemon -x node bin.js launch ./config.dev.json | npx pino
