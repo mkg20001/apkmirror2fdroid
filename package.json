@@ -1,6 +1,6 @@
 {
   "name": "apkmirror2fdroid",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Mirror packages from apkmirror.com to your F-Droid Repo",
   "main": "src/index.js",
   "bin": {
