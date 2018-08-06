@@ -4,14 +4,18 @@ div(class="jumbotron")
     input(type="text", id="search-val", value=query)
     input(type="submit", value="Search")
 each result in results
-  div(class="search-result jumbotron")
-    h2(class="search-result-title")
-      img(src=result.icon,width="64px",height="64px")
-      div(style="min-width: 16px")
-      a(href=result.url)= result.name
-    h4
-      a(href=result.devUrl) by #{result.by}
-    a(class="btn btn-primary", href=result.addUrl) Add App
+  div(class="jumbotron")
+    div(class="row")
+      div(class="col-md-1")
+        img(src=result.icon,width="64px",height="64px")
+      div(class="col-md-9")
+        h2
+          a(href=result.url)= result.name
+        h4
+          a(href=result.devUrl) by #{result.by}
+      div(class="col-md-2")
+        a(class="btn btn-outline-secondary", href=result.addUrl)
+          i(class="fa fa-plus fa-4x")
 center(style="display: flex; justify-content: center; flex-direction: row;")
   if previous
     - var p = '/search/' + encodeURI(query) + '/' + previous
