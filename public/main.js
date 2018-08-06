@@ -3,7 +3,7 @@
 /* eslint-env module */
 
 const page = require('page')
-const $ = require('jquery')
+const $ = window.jQuery
 const fetch = window.fetch || require('whatwg-fetch')
 const version = require('../package.json').version
 $('.version').text('v' + version)
