@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -rf dist && npx parcel build public/index.html",
-    "prepublish": "npm run postpublish && npm run build && mv dist assets",
+    "prepublishOnly": "npm run postpublish && npm run build && mv dist assets",
     "postpublish": "rm -rf assets"
   },
   "keywords": [

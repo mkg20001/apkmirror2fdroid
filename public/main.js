@@ -5,6 +5,8 @@
 const page = require('page')
 const $ = require('jquery')
 const fetch = window.fetch || require('whatwg-fetch')
+const version = require('../package.json').version
+$('.version').text('v' + version)
 
 const APIURL = module.hot ? 'http://localhost:5334/' : '/' // use localhost:5334 for dev, otherwise current origin
 
@@ -16,12 +18,19 @@ const middle = (url) => (ctx, next) => { // fetch URLs as middleware
   })
 }
 
+$('#searchform').on('submit', e => {
+  e.preventDefault()
+  page('/search/' + encodeURIComponent($('#searchval').val()) + '/1')
+})
+
 const tmplAlert = require('./templates/alert.pug')
 const alert = (type, important, message) => $('.alerts').append(tmplAlert({type, important, message}))
 
 const tmplLoader = require('./templates/loader.pug')
 page((ctx, next) => {
   $('.page').html(tmplLoader({}))
+  $('.active').removeClass('active')
+  $('a[href=' + JSON.stringify(ctx.path) + ']').addClass('active')
   next()
 })
 
@@ -39,7 +48,7 @@ const tmplSearch = require('./templates/search.pug')
 function appSearch () {
   $('#search').on('submit', e => {
     e.preventDefault()
-    page('/search/' + $('#search-val').val())
+    page('/search/' + encodeURIComponent($('#search-val').val()) + '/1')
   })
 }
 
@@ -48,8 +57,8 @@ page('/search', (ctx) => {
   appSearch()
 })
 
-page('/search/:query', middle('search?query=$query'), (ctx) => {
-  $('.page').html(tmplSearch({results: ctx.api, query: ctx.params.query}))
+page('/search/:query/:page', middle('search?query=$query&page=$page'), (ctx) => {
+  $('.page').html(tmplSearch(ctx.api))
   appSearch()
 })
 
@@ -67,7 +76,12 @@ function appPage (app) {
         variants
       })
     }).then(res => res.json()).then(res => {
-      page('/app/' + res.id + '/?success=' + (res.success || 'false'))
+      if (res.success) {
+        alert('success', 'Saved', 'Update check was scheudled')
+        page('/app/' + res.id + '/')
+      } else {
+        alert('error', 'Error occured while saving', 'Please check the settings below and try again')
+      }
     })
   })
 }

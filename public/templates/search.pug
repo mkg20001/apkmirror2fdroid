@@ -12,3 +12,11 @@ each result in results
     h4
       a(href=result.devUrl) by #{result.by}
     a(class="btn btn-primary", href=result.addUrl) Add App
+center(style="display: flex; justify-content: center; flex-direction: row;")
+  if previous
+    - var p = '/search/' + encodeURI(query) + '/' + previous
+    a(class="btn btn-primary", href=p, style="margin: 2px") « Previous
+  if next
+    - var p = '/search/' + encodeURI(query) + '/' + next
+    a(class="btn btn-primary", href=p, style="margin: 2px") Next »
+br

@@ -41,13 +41,15 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
     config: {
       validate: {
         query: {
-          query: Joi.string().required()
+          query: Joi.string().required(),
+          page: Joi.string().regex(/^\d+$/)
         }
       }
     },
     handler: async (request, h) => {
-      const res = await prom(cb => apk.searchForApps(request.query.query, cb))
-      return res.map(r => {
+      let page = parseInt(request.query.page, 10)
+      const res = await prom(cb => apk.searchForApps(request.query.query, cb, page))
+      const results = res.map(r => {
         let origin = `${request.headers['x-forwarded-proto'] || request.server.info.protocol}://${request.info.host}`
         return {
           icon: origin + '/imgproxy?proxy=' + encodeURIComponent(r.app.icon.replace('w=32&h=32', 'w=64&h=64')),
@@ -59,6 +61,13 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
           addUrl: '/add/_' + Buffer.from(r.app.url).toString('base64')
         }
       })
+      return {
+        page: page,
+        next: res.hasNextPage ? page + 1 : null,
+        previous: page === 1 ? null : page - 1,
+        query: request.query.query,
+        results
+      }
     }
   })
 
