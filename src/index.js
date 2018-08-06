@@ -19,14 +19,14 @@ const shortHash = (str) => {
   return hash.substr(parseInt(hash.substr(0, 1), 16), 16)
 }
 
-module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, updateCheckInterval}) => {
+module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, updateCheckInterval}) => {
   mongoose.connect(mongodb)
 
   /* Server */
 
   const server = Hapi.server({
-    port: 5334,
-    host: 'localhost',
+    port,
+    host,
     routes: {
       cors: {
         origin: ['*']
@@ -177,8 +177,8 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, update
 
   const Queue = require('bull')
 
-  const downloadQueue = new Queue('downloading')
-  const checkQueue = new Queue('update checks')
+  const downloadQueue = new Queue('downloading', redis)
+  const checkQueue = new Queue('update checks', redis)
 
   const SHARED_APP = ['play', 'app', 'dev', 'notes', 'variants']
   const SHARED_VARIANT = ['name', 'url', 'version', 'versionUrl', 'arch', 'androidVer', 'dpi']
@@ -233,7 +233,7 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, update
         dlSize += data.length
         job.progress(dlSize / size)
       })
-      stream.pipe(fs.createWriteStream(path.join(process.cwd(), 'repo', 'repo', outname)))
+      stream.pipe(fs.createWriteStream(path.join(fdroidRepoPath, outname)))
       await prom(cb => stream.once('end', cb))
       console.log('Done')
       variant.curVersionUrl = variant.versionUrl
@@ -242,12 +242,8 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, update
     }
   })
 
-  const init = async () => {
-    await server.start()
-    console.log(`Server running at: ${server.info.uri}`)
-  }
-
-  setInterval(() => {
+  let upIntv
+  const updateCron = () => {
     console.log('Update cron...')
     App.find((err, res) => {
       if (err) throw err
@@ -255,7 +251,17 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, update
         checkQueue.add({app: app.id})
       })
     })
-  }, 6 * 3600 * 1000)
+  }
 
-  init()
+  return {
+    start: async () => {
+      await server.start()
+      upIntv = setInterval(updateCron, updateCheckInterval)
+      return server.info.uri
+    },
+    stop: async () => {
+      clearInterval(upIntv)
+      // TODO: stop queues, stop server, disconnect redis & mongodb
+    }
+  }
 }

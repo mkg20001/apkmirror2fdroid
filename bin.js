@@ -46,7 +46,7 @@ require('yargs') // eslint-disable-line
       const conf = JSON.parse(fs.readFileSync(argv.config))
       const server = Server(conf)
       server.start().then((url) => {
-        console.log('Running on %s!')
+        console.log('Running on %s!', url)
       })
     }
   })
