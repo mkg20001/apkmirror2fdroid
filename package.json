@@ -2,9 +2,15 @@
   "name": "apkmirror2fdroid",
   "version": "0.0.1",
   "description": "Mirror packages from apkmirror.com to your F-Droid Repo",
-  "main": "index.js",
+  "main": "src/index.js",
+  "bin": {
+    "apkmirror2fdroid": "bin.js"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf dist && npx parcel build public/index.html",
+    "prerelease": "npm run build && mv dist assets",
+    "postrelease": "rm -rf assets"
   },
   "keywords": [
     "apkmirror",
@@ -16,9 +22,11 @@
   "dependencies": {
     "apkmirror-client": "github:mkg20001/apkmirror-client",
     "bull": "^3.4.4",
+    "bunyan": "^1.8.12",
     "hapi": "^17.5.3",
     "mongoose": "^5.2.6",
-    "request": "^2.87.0"
+    "request": "^2.87.0",
+    "yargs": "^12.0.1"
   },
   "devDependencies": {
     "parcel-bundler": "^1.9.7",
@@ -26,5 +34,13 @@
     "pug": "^2.0.3",
     "page": "^1.8.6",
     "whatwg-fetch": "^2.0.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mkg20001/apkmirror2fdroid.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mkg20001/apkmirror2fdroid/issues"
+  },
+  "homepage": "https://github.com/mkg20001/apkmirror2fdroid#readme"
 }
