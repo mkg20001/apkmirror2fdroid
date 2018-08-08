@@ -6,7 +6,7 @@ const crypto = require('crypto')
 const path = require('path')
 const fs = require('fs')
 const Server = require('.')
-const log = require('pino')()
+const log = require('pino')({name: 'apkmirror2fdroid'})
 
 /* eslint-disable no-console */
 

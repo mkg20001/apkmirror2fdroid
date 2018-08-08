@@ -18,7 +18,7 @@ const shortHash = (str) => {
   let hash = crypto.createHash('sha512').update(str).digest('hex')
   return hash.substr(parseInt(hash.substr(0, 1), 16), 16)
 }
-const log = require('pino')()
+const log = require('pino')({name: 'apkmirror2fdroid'})
 
 module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, updateCheckInterval}) => {
   mongoose.connect(mongodb)
@@ -270,7 +270,8 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
   return {
     start: async () => {
       await server.register({
-        plugin: require('hapi-pino')
+        plugin: require('hapi-pino'),
+        options: {name: 'apkmirror2fdroid'}
       })
 
       await server.register({
