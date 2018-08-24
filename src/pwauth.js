@@ -41,7 +41,6 @@ module.exports = async (server, secret, pw) => {
 
         let failed = true
 
-        console.log(pw, request.payload)
         if (attempts < 10 && request.payload === pw) {
           failed = false
           let sid = hat()
