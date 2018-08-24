@@ -87,6 +87,29 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
     }
   })
 
+  const getAppPage = async (app) => {
+    let res = await prom(cb => apk.getAppPage(app, cb))
+    if (!res.variants.length) {
+      let latestNonBeta = res.versions.filter(v => !v.beta)[0]
+      let release = await prom(cb => latestNonBeta.loadRelease(cb))
+      res.variants.push({ // map to variant
+        name: '(universal) (' + release.androidVer.min.name + '+' + ')',
+        url: release.url,
+        version: release.version,
+        versionUrl: release.url,
+        arch: 'universal',
+        archUrl: app.url,
+        androidVer: release.androidVer.min.name + '+',
+        androidVerUrl: release.url,
+        dpi: app.dpi,
+        dpiUrl: release.url,
+        isLatest: true,
+        isDirectRelease: true
+      })
+    }
+    return res
+  }
+
   const variantsUpdate = async (app) => {
     let variants = app.id ? await prom(cb => Variant.find({appId: app.id}, cb)) : []
 
@@ -110,11 +133,7 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
         return {alreadyInDB: app.id}
       }
 
-      app = await prom(cb => {
-        apk.getAppPage({
-          app: {url}
-        }, cb)
-      })
+      app = await getAppPage({ app: {url} })
     } else {
       try {
         app = await prom(cb => App.findOne({_id: id}, cb))
@@ -195,7 +214,7 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
   const checkQueue = new Queue('update checks', redis)
 
   const SHARED_APP = ['play', 'app', 'dev', 'notes', 'variants']
-  const SHARED_VARIANT = ['name', 'url', 'version', 'versionUrl', 'arch', 'androidVer', 'dpi']
+  const SHARED_VARIANT = ['name', 'url', 'version', 'versionUrl', 'arch', 'androidVer', 'dpi', 'isDirectRelease']
 
   checkQueue.process(async (job, done) => {
     const app = await prom(cb => App.findOne({_id: job.data.app}, cb))
@@ -205,7 +224,7 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
     }
     log.info({app: app.app.name}, 'Update check for %s...', app.app.name)
 
-    const page = await prom(cb => apk.getAppPage(app, cb))
+    const page = await getAppPage(app)
     SHARED_APP.forEach(key => (app[key] = page[key]))
     await variantsUpdate(app)
     app.lastCheck = Date.now()
@@ -236,20 +255,25 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
     }
     if (variant.curVersionUrl !== variant.versionUrl) {
       log.info({app: app.app.name, version: variant.versionUrl, variant: variant.name}, 'Downloading APK...')
-      const page = await prom(cb => apk.getReleasePage(variant.versionUrl, cb))
-      const v = page.variants.filter(v => v.arch === variant.arch && v.androidVer === variant.androidVer && v.dpi === variant.dpi)[0]
-      const variantPage = await prom(cb => v.loadVariant(cb))
+      let variantPage
+      if (variant.isDirectRelease) {
+        variantPage = await prom(cb => apk.appVariantPage(variant.versionUrl, cb))
+      } else {
+        const page = await prom(cb => apk.getReleasePage(variant.versionUrl, cb))
+        const v = page.variants.filter(v => v.arch === variant.arch && v.androidVer === variant.androidVer && v.dpi === variant.dpi)[0]
+        variantPage = await prom(cb => v.loadVariant(cb))
+      }
       let size = parseInt(variantPage.size.match(/([\d,]+) bytes/)[1].replace(/,/g, ''), 10)
       const stream = await prom(cb => variantPage.downloadAPK(cb))
       let dlSize = 0
-      let outname = [app.play.id, variant.arch, variant.androidVer, variant.dpi, v.id, '----', variant.version].join('_').replace(/[^a-z0-9.]/gmi, '_') + '.apk'
+      let outname = [app.play.id, variant.arch, variant.androidVer, variant.dpi, variant.id, variant.version].join('_').replace(/[^0-9a-zA-Z-.,_]/gm, '_') + '.apk'
       stream.on('data', data => {
         dlSize += data.length
         job.progress(dlSize / size)
       })
       stream.pipe(fs.createWriteStream(path.join(fdroidRepoPath, outname)))
       await prom(cb => stream.once('end', cb))
-      console.log('Done')
+      log.info({app: app.app.name, version: variant.versionUrl, variant: variant.name}, 'Done Downloading APK!')
       variant.curVersionUrl = variant.versionUrl
       await prom(cb => variant.save(cb))
       done()
@@ -258,7 +282,7 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
 
   let upIntv
   const updateCron = () => {
-    console.log('Update cron...')
+    log.info('Update cron...')
     App.find((err, res) => {
       if (err) throw err
       res.forEach(app => {

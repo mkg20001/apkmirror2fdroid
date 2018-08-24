@@ -1,11 +1,12 @@
 div(class="jumbotron")
   include appInfo
 
-  h2(onclick='$("#hiddenDesc").show()') Description (click to show)
-  div(style="display: none", id="hiddenDesc")
-    each note in notes
-      tt=note
-      br
+  unless notes[0] == "No description available"
+    h2(onclick='$("#hiddenDesc").show()') Description (click to show)
+    div(style="display: none", id="hiddenDesc")
+      each note in notes
+        tt=note
+        br
 
   include appVariants
 

@@ -34,6 +34,7 @@ module.exports = {
     curVersionUrl: String,
     arch: String,
     androidVer: String,
-    dpi: String
+    dpi: String,
+    isDirectRelease: Boolean
   })
 }
