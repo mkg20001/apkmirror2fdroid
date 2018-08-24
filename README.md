@@ -18,7 +18,9 @@ Then install apkmirror2fdroid using `npm i -g apkmirror2fdroid`
 
 Now create a config for the repo: `apkmirror2fdroid genconf > config.json`
 
-Now you need to edit the `repo_url` and `archive_url` in the F-Droid repo `config.py` and the `fdroidRepoPath` in the `config.json`
+Now you need to edit the `repo_url` and `archive_url` in the F-Droid repo `config.py` and the `fdroidRepoPath` in the `config.json`.
+
+You may also want to change the default admin password in `config.json`
 
 After that launch apkmirror2fdroid using `apkmirror2fdroid launch ./config.json`
 
