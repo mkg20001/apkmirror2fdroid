@@ -26,7 +26,7 @@ require('yargs') // eslint-disable-line
         mongodb: 'mongodb://localhost/apk2fdroid',
         adminPW: crypto.randomBytes(8).toString('hex'),
         secret: crypto.randomBytes(32).toString('hex'),
-        fdroidRepoPath: path.join(process.cwd(), 'repo', 'repo'),
+        fdroidRepoPath: path.join(process.cwd(), 'repo'),
         port: 5334,
         host: 'localhost',
         updateCheckInterval: 6 * 3600 * 1000

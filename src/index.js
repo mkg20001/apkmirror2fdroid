@@ -9,6 +9,8 @@ const {App, Variant} = require('./db')
 const apk = require('apkmirror-client')
 const prom = (fnc) => new Promise((resolve, reject) => fnc((err, res) => err ? reject(err) : resolve(res)))
 const request = require('request')
+const truncate = require('truncate')
+const yaml = require('js-yaml')
 
 const fs = require('fs')
 const path = require('path')
@@ -230,6 +232,20 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
     }
     app.lastCheck = Date.now()
 
+    let meta = {
+      AuthorName: app.dev.name,
+      Categories: ['repo', app.play.category],
+      Name: app.app.name,
+      Summary: truncate(app.notes.split('\n').filter(s => s.trim())[0], 70),
+      WebSite: app.play.url
+    }
+    let metaName = path.join(fdroidRepoPath, 'metadata', app.play.id + '.yml')
+
+    if (fs.existsSync(metaName)) {
+      meta = Object.assign(yaml.safeLoad(fs.readFileSync(metaName, 'utf8')), meta)
+    }
+    fs.writeFileSync(metaName, yaml.safeDump(meta))
+
     await Promise.all(app.variants.filter(v => v.enabled).map(async (v) => {
       SHARED_VARIANT.forEach(key => (v._db[key] = v[key]))
       await prom(cb => v._db.save(cb))
@@ -272,7 +288,7 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
         dlSize += data.length
         job.progress(dlSize / size)
       })
-      stream.pipe(fs.createWriteStream(path.join(fdroidRepoPath, outname)))
+      stream.pipe(fs.createWriteStream(path.join(fdroidRepoPath, 'repo', outname)))
       await prom(cb => stream.once('end', cb))
       log.info({app: app.app.name, version: variant.versionUrl, variant: variant.name}, 'Done Downloading APK!')
       variant.curVersionUrl = variant.versionUrl
