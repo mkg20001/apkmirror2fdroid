@@ -118,14 +118,8 @@ page('*', (ctx) => {
 page({})
 
 if (module.hot) {
-  module.hot.dispose(() => window.location.reload())
-
-  /* module.hot.dispose(function () {
+  module.hot.dispose(function () {
     page.stop()
     $('.page').html('...')
   })
-
-  module.hot.accept(function () {
-    page({})
-  }) */
 }

@@ -22,14 +22,14 @@
   "license": "MPL-2.0",
   "dependencies": {
     "apkmirror-client": "github:mkg20001/apkmirror-client",
-    "bull": "^3.4.4",
+    "bull": "^3.4.7",
     "hapi": "^17.5.3",
-    "hapi-pino": "^5.0.0",
+    "hapi-pino": "^5.0.1",
     "inert": "^5.1.0",
-    "mongoose": "^5.2.7",
-    "parcel-plugin-pug-client": "^1.0.0",
-    "pino": "^5.0.1",
-    "request": "^2.87.0",
+    "mongoose": "^5.2.9",
+    "parcel-plugin-pug-client": "^1.0.1",
+    "pino": "^5.3.1",
+    "request": "^2.88.0",
     "yargs": "^12.0.1"
   },
   "devDependencies": {
