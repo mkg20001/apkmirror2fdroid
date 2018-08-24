@@ -10,6 +10,7 @@ $('.version').text('v' + version)
 
 const APIURL = module.hot ? 'http://localhost:5334/' : '/' // use localhost:5334 for dev, otherwise current origin
 let preLogin = '/'
+let failedLogin = false
 
 const api = (u, opt) => fetch(APIURL + u, Object.assign({credentials: 'include', redirect: 'manual'}, opt || {}))
   .then(res => {
@@ -63,12 +64,24 @@ page('/login', (ctx) => {
       body: $('#pwField')[0].value
     }).then(res => {
       if (res.failed) {
+        failedLogin = true
         alert('danger', 'Unauthorized', 'Wrong password')
       } else {
         page.redirect(preLogin)
       }
     })
   })
+
+  setTimeout(() => { // autocomplete detect
+    if ($('#pwField')[0].value && !failedLogin) {
+      $('#loginForm').submit()
+    }
+    $(document).on('ready', () => {
+      if ($('#pwField')[0].value && !failedLogin) {
+        $('#loginForm').submit()
+      }
+    })
+  }, 250)
 })
 
 /* Search */
