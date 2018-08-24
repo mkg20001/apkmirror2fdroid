@@ -1,3 +1,20 @@
+<a name="0.0.9"></a>
+## [0.0.9](https://github.com/mkg20001/apkmirror2fdroid/compare/v0.0.8...v0.0.9) (2018-08-24)
+
+
+### Bug Fixes
+
+* Remove debug console.log ([8e89105](https://github.com/mkg20001/apkmirror2fdroid/commit/8e89105))
+
+
+### Features
+
+* Autocomplete login ([1d1076d](https://github.com/mkg20001/apkmirror2fdroid/commit/1d1076d))
+* Push metadata to fdroid repo, closes [#4](https://github.com/mkg20001/apkmirror2fdroid/issues/4) ([b2480a0](https://github.com/mkg20001/apkmirror2fdroid/commit/b2480a0))
+* Show if app is automanaged on index ([3e42379](https://github.com/mkg20001/apkmirror2fdroid/commit/3e42379))
+
+
+
 <a name="0.0.8"></a>
 ## [0.0.8](https://github.com/mkg20001/apkmirror2fdroid/compare/v0.0.7...v0.0.8) (2018-08-24)
 
