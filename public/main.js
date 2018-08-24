@@ -9,16 +9,19 @@ const version = require('../package.json').version
 $('.version').text('v' + version)
 
 const APIURL = module.hot ? 'http://localhost:5334/' : '/' // use localhost:5334 for dev, otherwise current origin
+let preLogin = '/'
 
 const api = (u, opt) => fetch(APIURL + u, Object.assign({credentials: 'include', redirect: 'manual'}, opt || {}))
   .then(res => {
     if (res.type === 'opaqueredirect') {
+      preLogin = page.current
       page.redirect('/login')
       return Promise.reject(new Error('Need login'))
     }
 
     return res.json()
   })
+
 const middle = (url) => (ctx, next) => { // fetch URLs as middleware
   api(url.replace(/\$([a-z0-9]+)/gmi, (_, param) => ctx.params[param])).then(res => {
     ctx.api = res
@@ -62,7 +65,7 @@ page('/login', (ctx) => {
       if (res.failed) {
         alert('danger', 'Unauthorized', 'Wrong password')
       } else {
-        page.redirect('/')
+        page.redirect(preLogin)
       }
     })
   })
