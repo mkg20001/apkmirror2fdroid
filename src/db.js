@@ -23,7 +23,8 @@ module.exports = {
     },
     notes: String,
     variants: Array,
-    lastCheck: Date
+    lastCheck: Date,
+    automanaged: Boolean // TODO: add this feature
   }),
   Variant: mongoose.model('Variant', {
     appId: String,

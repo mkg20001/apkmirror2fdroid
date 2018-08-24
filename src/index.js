@@ -30,7 +30,8 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
     host,
     routes: {
       cors: {
-        origin: process.env.NODE_ENV === 'production' ? [] : ['*']
+        origin: process.env.NODE_ENV === 'production' ? [] : ['*'],
+        credentials: true
       }
     }
   })
@@ -198,14 +199,6 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
     }
   })
 
-  server.route({
-    method: 'GET',
-    path: '/apps',
-    handler: (request, h) => {
-      return App.find({})
-    }
-  })
-
   /* Queues */
 
   const Queue = require('bull')
@@ -300,6 +293,19 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
 
       await server.register({
         plugin: require('inert')
+      })
+
+      await require('./pwauth')(server, secret, adminPW)
+
+      server.route({
+        method: 'GET',
+        path: '/apps',
+        options: {
+          auth: {mode: 'optional'}
+        },
+        handler: (request, h) => {
+          return App.find({})
+        }
       })
 
       server.route({

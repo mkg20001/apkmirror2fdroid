@@ -10,9 +10,17 @@ $('.version').text('v' + version)
 
 const APIURL = module.hot ? 'http://localhost:5334/' : '/' // use localhost:5334 for dev, otherwise current origin
 
-const api = (u, ...a) => fetch(APIURL + u, ...a)
+const api = (u, opt) => fetch(APIURL + u, Object.assign({credentials: 'include', redirect: 'manual'}, opt || {}))
+  .then(res => {
+    if (res.type === 'opaqueredirect') {
+      page.redirect('/login')
+      return Promise.reject(new Error('Need login'))
+    }
+
+    return res.json()
+  })
 const middle = (url) => (ctx, next) => { // fetch URLs as middleware
-  api(url.replace(/\$([a-z0-9]+)/gmi, (_, param) => ctx.params[param])).then(res => res.json()).then(res => {
+  api(url.replace(/\$([a-z0-9]+)/gmi, (_, param) => ctx.params[param])).then(res => {
     ctx.api = res
     return next()
   })
@@ -39,6 +47,25 @@ page((ctx, next) => {
 const tmplIndex = require('./templates/index.pug')
 page('/', middle('apps'), (ctx) => {
   $('.page').html(tmplIndex({apps: ctx.api}))
+})
+
+/* Login */
+const tmplLogin = require('./templates/login.pug')
+page('/login', (ctx) => {
+  $('.page').html(tmplLogin({}))
+  $('#loginForm').on('submit', e => {
+    e.preventDefault()
+    api('login', {
+      method: 'POST',
+      body: $('#pwField')[0].value
+    }).then(res => {
+      if (res.failed) {
+        alert('danger', 'Unauthorized', 'Wrong password')
+      } else {
+        page.redirect('/')
+      }
+    })
+  })
 })
 
 /* Search */
@@ -75,12 +102,12 @@ function appPage (app) {
       body: JSON.stringify({
         variants
       })
-    }).then(res => res.json()).then(res => {
+    }).then(res => {
       if (res.success) {
         alert('success', 'Saved', 'Update check was scheudled')
         page('/app/' + res.id + '/')
       } else {
-        alert('error', 'Error occured while saving', 'Please check the settings below and try again')
+        alert('danger', 'Error occured while saving', 'Please check the settings below and try again')
       }
     })
   })

@@ -6,6 +6,15 @@
   padding: 2rem !important;
 }
 
+#loginForm a { /* for "show password" extensions */
+  border-radius: 6px;
+  vertical-align: middle;
+  height: 32px;
+  margin-top: 16px;
+  margin-left: -48px;
+  min-width: 64px;
+}
+
 /* Spinner */
 
 .spinner {
