@@ -155,6 +155,26 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
     handler: appGet
   })
 
+  const syncVariants = async (app, newIds) => {
+    let newVariants = app.variants.filter(v => newIds.indexOf(v.id) !== -1)
+    let currentVariants = app.variants.filter(v => v.enabled)
+
+    await Promise.all( // drop old
+      currentVariants
+        .filter(v => newIds.indexOf(v.id) === -1)
+        .map(v => prom(cb => v._db.remove(cb))))
+
+    await Promise.all( // add new
+      newVariants
+        .filter(v => !v.enabled)
+        .map(v => prom(cb => new Variant(Object.assign(v, {appId: app.id})).save(cb)))
+    )
+
+    await variantsUpdate(app)
+    app.markModified('variants')
+    await prom(cb => app.save(cb))
+  }
+
   server.route({
     method: 'POST',
     path: '/app/{id}',
@@ -174,24 +194,9 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
         await prom(cb => app.save(cb)) // so we get an id
       } else app = res
 
-      let newVariants = app.variants.filter(v => req.payload.variants.indexOf(v.id) !== -1)
-      let newIds = req.payload.variants
-      let currentVariants = app.variants.filter(v => v.enabled)
+      app.automanaged = Boolean(req.payload.variants.filter(v => v === 'automanaged').length || req.payload.automanage)
 
-      await Promise.all( // drop old
-        currentVariants
-          .filter(v => newIds.indexOf(v.id) === -1)
-          .map(v => prom(cb => v._db.remove(cb))))
-
-      await Promise.all( // add new
-        newVariants
-          .filter(v => !v.enabled)
-          .map(v => prom(cb => new Variant(Object.assign(v, {appId: app.id})).save(cb)))
-      )
-
-      await variantsUpdate(app)
-      app.markModified('variants')
-      await prom(cb => app.save(cb))
+      await syncVariants(app, app.automanaged ? app.variants.filter(v => v.isLatest).map(v => v.id) : req.payload.variants)
 
       checkQueue.add({app: app.id})
 
@@ -220,6 +225,9 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
     const page = await getAppPage(app)
     SHARED_APP.forEach(key => (app[key] = page[key]))
     await variantsUpdate(app)
+    if (app.automanaged) {
+      await syncVariants(app, app.variants.filter(v => v.isLatest).map(v => v.id))
+    }
     app.lastCheck = Date.now()
 
     await Promise.all(app.variants.filter(v => v.enabled).map(async (v) => {
