@@ -1,3 +1,13 @@
+<a name="0.0.7"></a>
+## [0.0.7](https://github.com/mkg20001/apkmirror2fdroid/compare/v0.0.6...v0.0.7) (2018-08-24)
+
+
+### Features
+
+* Allow adding of apps with "universal" variant, closes [#2](https://github.com/mkg20001/apkmirror2fdroid/issues/2) ([e330656](https://github.com/mkg20001/apkmirror2fdroid/commit/e330656))
+
+
+
 <a name="0.0.6"></a>
 ## [0.0.6](https://github.com/mkg20001/apkmirror2fdroid/compare/v0.0.5...v0.0.6) (2018-08-06)
 
