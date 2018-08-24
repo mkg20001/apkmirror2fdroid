@@ -2,8 +2,6 @@
 
 Mirror packages from apkmirror.com to your F-Droid Repo
 
-> WIP
-
 ## Setup
 
 You need:
@@ -24,6 +22,11 @@ You may also want to change the default admin password in `config.json`
 
 After that launch apkmirror2fdroid using `apkmirror2fdroid launch ./config.json`
 
+## Screenshots
+![Overview](./img/main.png)
+![App Search](./img/search.png)
+![App Settings](./img/settings.png)
+
 ## ToDos
 
  - [x] Adding Apps
@@ -31,4 +34,4 @@ After that launch apkmirror2fdroid using `apkmirror2fdroid launch ./config.json`
  - [x] Update checks
  - [x] Download apps
  - [ ] Update repo
- - [ ] Write metadata to repo
+ - [x] Write metadata to repo
