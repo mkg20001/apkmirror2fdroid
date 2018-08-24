@@ -1,12 +1,12 @@
 h2 Variants/Channels
 ul
   li
-    input(id="automanaged", type="checkbox", checked=automanaged)
+    input(id="automanaged", type="checkbox", checked=automanaged || !_id)
     span <b>Automanaged</b> will automatically pick best version
   each variant in variants
     li
       span
-        input(id=variant.id, type="checkbox", checked=variant.enabled || (!id && variant.isLatest))
+        input(id=variant.id, type="checkbox", checked=variant.enabled || (!_id && variant.isLatest))
       if variant.isLatest
         span
           b
