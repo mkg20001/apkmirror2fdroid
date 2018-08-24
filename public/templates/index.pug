@@ -9,9 +9,13 @@ div
       - var id = app._id
       - var lastCheck = app.lastCheck
       - var variants = app.variants
+      - var automanaged = app.automanaged
       - var app = app.app
       include appInfo
-      h4 Variants
+      if automanaged
+        h4 Variants (automanaged)
+      unless automanaged
+        h4 Variants
       ul
         for variant in variants
           if variant.enabled
