@@ -1,3 +1,20 @@
+<a name="0.0.8"></a>
+## [0.0.8](https://github.com/mkg20001/apkmirror2fdroid/compare/v0.0.7...v0.0.8) (2018-08-24)
+
+
+### Bug Fixes
+
+* Flags ([64938d6](https://github.com/mkg20001/apkmirror2fdroid/commit/64938d6))
+
+
+### Features
+
+* Add automanaged flag, closes [#5](https://github.com/mkg20001/apkmirror2fdroid/issues/5) ([75ec041](https://github.com/mkg20001/apkmirror2fdroid/commit/75ec041))
+* Add login ([434cb94](https://github.com/mkg20001/apkmirror2fdroid/commit/434cb94))
+* Redirect to last page from login ([4396702](https://github.com/mkg20001/apkmirror2fdroid/commit/4396702))
+
+
+
 <a name="0.0.7"></a>
 ## [0.0.7](https://github.com/mkg20001/apkmirror2fdroid/compare/v0.0.6...v0.0.7) (2018-08-24)
 
