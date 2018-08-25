@@ -332,14 +332,31 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
         }
       })
 
+      const assets = path.join(__dirname, '../assets')
       server.route({
         method: 'GET',
         path: '/{param*}',
-        handler: {
-          directory: {
-            path: path.join(__dirname, '../assets'),
-            index: true
+        options: {
+          auth: {mode: 'optional'}
+        },
+        handler: async (request, h) => {
+          let p = path.join(assets, request.path)
+          if (fs.existsSync(p)) {
+            return h.file(p, {confine: false})
+          } else {
+            return h.file(path.join(assets, 'index.html'), {confine: false})
           }
+        }
+      })
+
+      server.route({
+        method: 'GET',
+        path: '/',
+        options: {
+          auth: {mode: 'optional'}
+        },
+        handler: async (request, h) => {
+          return h.file(path.join(assets, 'index.html'), {confine: false})
         }
       })
 
