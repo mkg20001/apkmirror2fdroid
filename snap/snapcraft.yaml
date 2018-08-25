@@ -1,0 +1,20 @@
+name: apkmirror2fdroid
+version: 0.1.0
+summary: Mirror packages from apkmirror.com to your F-Droid Repo
+description: Mirror packages from apkmirror.com to your F-Droid Repo
+confinement: strict
+grade: stable
+
+apps:
+  apkmirror2fdroid:
+    command: apkmirror2fdroid
+    plugs: [network, network-bind]
+
+parts:
+  apkmirror2fdroid:
+    plugin: nodejs
+    node-engine: 10.9.0
+    source: .
+  fdroidserver:
+    stage-packages:
+      - fdroidserver
