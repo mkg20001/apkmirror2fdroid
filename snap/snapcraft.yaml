@@ -15,6 +15,5 @@ parts:
     plugin: nodejs
     node-engine: 10.9.0
     source: .
-  fdroidserver:
     stage-packages:
       - fdroidserver

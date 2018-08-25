@@ -6,3 +6,9 @@ docs
 *.bak
 out
 repo
+
+parts
+prime
+stage
+snap/.snapcraft
+*.snap
