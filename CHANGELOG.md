@@ -1,3 +1,13 @@
+<a name="0.1.0"></a>
+# [0.1.0](https://github.com/mkg20001/apkmirror2fdroid/compare/v0.0.9...v0.1.0) (2018-08-25)
+
+
+### Bug Fixes
+
+* Frontend not working ([be0b9a8](https://github.com/mkg20001/apkmirror2fdroid/commit/be0b9a8))
+
+
+
 <a name="0.0.9"></a>
 ## [0.0.9](https://github.com/mkg20001/apkmirror2fdroid/compare/v0.0.8...v0.0.9) (2018-08-24)
 
