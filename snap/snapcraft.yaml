@@ -16,9 +16,9 @@ parts:
     node-engine: 10.10.0
     source: .
     override-build: |
-      - npm i
-      - npm run prepublishOnly
-      - snapcraftctl build
+      npm i
+      npm run prepublishOnly
+      snapcraftctl build
     stage-packages:
       - fdroidserver
       - libdb5.3
