@@ -2,6 +2,7 @@
 
 const Hapi = require('hapi')
 const Joi = require('joi')
+const CatboxMongoDB = require('catbox-mongodb')
 
 const mongoose = require('mongoose')
 const {App, Variant} = require('./db')
@@ -27,6 +28,7 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
 
   /* Server */
 
+  const mongodbDB = mongodb.split('/').pop().split('?').shift() // get uppercase part: mongodb://url:port/DB?something
   const server = Hapi.server({
     port,
     host,
@@ -35,7 +37,13 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
         origin: process.env.NODE_ENV === 'production' ? [] : ['*'],
         credentials: true
       }
-    }
+    },
+    cache: [{
+      name: 'mongoDbCache',
+      engine: CatboxMongoDB,
+      uri: mongodb.replace(mongodbDB, ''),
+      partition: mongodbDB
+    }]
   })
 
   server.route({
