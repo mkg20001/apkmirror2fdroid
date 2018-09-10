@@ -18,4 +18,4 @@ parts:
     stage-packages:
       - fdroidserver
     snap:
-      - -usr/lib/jvm/java-8-openjdk-arm64/jre/lib/security/cacerts
+      - -usr/lib/jvm/java-8-openjdk-*/jre/lib/security/cacerts
