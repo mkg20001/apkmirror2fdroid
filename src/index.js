@@ -41,7 +41,7 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
     cache: [{
       name: 'mongoDbCache',
       engine: CatboxMongoDB,
-      uri: mongodb.replace(mongodbDB, ''),
+      uri: mongodb, // .replace(mongodbDB, ''),
       partition: mongodbDB
     }]
   })

@@ -4,9 +4,14 @@
 
 const page = require('page')
 const $ = window.jQuery
-const fetch = window.fetch || require('whatwg-fetch')
+
 const version = require('../package.json').version
 $('.version').text('v' + version)
+
+if (!window.fetch) {
+  require('whatwg-fetch')
+}
+const fetch = window.fetch
 
 const APIURL = module.hot ? 'http://localhost:5334/' : '/' // use localhost:5334 for dev, otherwise current origin
 let preLogin = '/'
@@ -32,6 +37,9 @@ const middle = (url) => (ctx, next) => { // fetch URLs as middleware
 
 $('#searchform').on('submit', e => {
   e.preventDefault()
+  if (!$('#searchval').val().trim()) {
+    return alert('info', 'Can\'t search', 'Searchfield is blank')
+  }
   page('/search/' + encodeURIComponent($('#searchval').val()) + '/1')
 })
 
@@ -91,6 +99,9 @@ const tmplSearch = require('./templates/search.pug')
 function appSearch () {
   $('#search').on('submit', e => {
     e.preventDefault()
+    if (!$('#search-val').val().trim()) {
+      return alert('info', 'Can\'t search', 'Searchfield is blank')
+    }
     page('/search/' + encodeURIComponent($('#search-val').val()) + '/1')
   })
 }
