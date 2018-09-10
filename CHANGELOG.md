@@ -1,3 +1,14 @@
+<a name="0.1.1"></a>
+## [0.1.1](https://github.com/mkg20001/apkmirror2fdroid/compare/v0.1.0...v0.1.1) (2018-09-10)
+
+
+### Features
+
+* Add snap file ([51c72c6](https://github.com/mkg20001/apkmirror2fdroid/commit/51c72c6))
+* Store sessions in mongodb ([c1adf91](https://github.com/mkg20001/apkmirror2fdroid/commit/c1adf91))
+
+
+
 <a name="0.1.0"></a>
 # [0.1.0](https://github.com/mkg20001/apkmirror2fdroid/compare/v0.0.9...v0.1.0) (2018-08-25)
 
