@@ -12,6 +12,7 @@ const prom = (fnc) => new Promise((resolve, reject) => fnc((err, res) => err ? r
 const request = require('request')
 const truncate = require('truncate')
 const yaml = require('js-yaml')
+const mkdir = require('mkdirp').sync
 
 const fs = require('fs')
 const path = require('path')
@@ -251,6 +252,9 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
 
     if (fs.existsSync(metaName)) {
       meta = Object.assign(yaml.safeLoad(fs.readFileSync(metaName, 'utf8')), meta)
+    }
+    if (!fs.existsSync(path.dirname(metaName))) {
+      mkdir(path.dirname(metaName))
     }
     fs.writeFileSync(metaName, yaml.safeDump(meta))
 
