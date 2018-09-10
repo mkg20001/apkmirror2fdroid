@@ -13,9 +13,14 @@ apps:
 parts:
   apkmirror2fdroid:
     plugin: nodejs
-    node-engine: 10.9.0
+    node-engine: 10.10.0
     source: .
+    override-build: |
+      - npm i
+      - npm run prepublishOnly
+      - snapcraftctl build
     stage-packages:
       - fdroidserver
-    snap:
+      - libdb5.3
+    prime:
       - -usr/lib/jvm/java-8-openjdk-*/jre/lib/security/cacerts
