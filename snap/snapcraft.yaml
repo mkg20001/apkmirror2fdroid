@@ -9,6 +9,9 @@ apps:
   apkmirror2fdroid:
     command: apkmirror2fdroid
     plugs: [network, network-bind]
+  fdroid:
+    command: fdroid
+    plugs: [network]
 
 parts:
   apkmirror2fdroid:
