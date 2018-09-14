@@ -6,6 +6,7 @@ docs
 *.bak
 out
 repo
+*.log
 
 parts
 prime
