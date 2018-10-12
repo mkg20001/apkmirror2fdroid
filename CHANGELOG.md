@@ -1,3 +1,24 @@
+<a name="0.1.2"></a>
+## [0.1.2](https://github.com/mkg20001/apkmirror2fdroid/compare/v0.1.1...v0.1.2) (2018-10-12)
+
+
+### Bug Fixes
+
+* **metadata:** Don't assume metadata folder exists ([33edfec](https://github.com/mkg20001/apkmirror2fdroid/commit/33edfec))
+* **snap:** Exclude symlink ([53ee901](https://github.com/mkg20001/apkmirror2fdroid/commit/53ee901))
+* **snap:** remove symlink ([b33e946](https://github.com/mkg20001/apkmirror2fdroid/commit/b33e946))
+* hapi catbox mongodb cache ([074f1a7](https://github.com/mkg20001/apkmirror2fdroid/commit/074f1a7))
+* lint ([7df3683](https://github.com/mkg20001/apkmirror2fdroid/commit/7df3683))
+
+
+### Features
+
+* **snap:** expose fdroid cmd ([eab6bf4](https://github.com/mkg20001/apkmirror2fdroid/commit/eab6bf4))
+* **snap:** Updates and fixes ([326948f](https://github.com/mkg20001/apkmirror2fdroid/commit/326948f))
+* Upgrade deps, login fixes, hint on search page ([fbff5fd](https://github.com/mkg20001/apkmirror2fdroid/commit/fbff5fd))
+
+
+
 <a name="0.1.1"></a>
 ## [0.1.1](https://github.com/mkg20001/apkmirror2fdroid/compare/v0.1.0...v0.1.1) (2018-09-10)
 
