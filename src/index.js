@@ -3,6 +3,7 @@
 const Hapi = require('hapi')
 const Joi = require('joi')
 const CatboxMongoDB = require('catbox-mongodb')
+const SPA = require('hapi-spa-serve')
 
 const mongoose = require('mongoose')
 const {App, Variant} = require('./db')
@@ -44,6 +45,14 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
       uri: mongodb,
       partition: mongodbDB
     }]
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/isAuthenticated',
+    handler: async (request, h) => {
+      return request.auth.isAuthenticated
+    }
   })
 
   server.route({
@@ -343,33 +352,7 @@ module.exports = ({redis, mongodb, adminPW, secret, fdroidRepoPath, port, host, 
         }
       })
 
-      const assets = path.join(__dirname, '../assets')
-      server.route({
-        method: 'GET',
-        path: '/{param*}',
-        options: {
-          auth: {mode: 'optional'}
-        },
-        handler: async (request, h) => {
-          let p = path.join(assets, request.path)
-          if (fs.existsSync(p)) {
-            return h.file(p, {confine: false})
-          } else {
-            return h.file(path.join(assets, 'index.html'), {confine: false})
-          }
-        }
-      })
-
-      server.route({
-        method: 'GET',
-        path: '/',
-        options: {
-          auth: {mode: 'optional'}
-        },
-        handler: async (request, h) => {
-          return h.file(path.join(assets, 'index.html'), {confine: false})
-        }
-      })
+      SPA(server, {assets: path.join(__dirname, '../assets'), options: { auth: {mode: 'optional'} }})
 
       await server.start()
       upIntv = setInterval(updateCron, updateCheckInterval)

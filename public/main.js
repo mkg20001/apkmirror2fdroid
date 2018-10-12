@@ -4,6 +4,7 @@
 
 const page = require('page')
 const $ = window.jQuery
+const loginFirstVisit = window.location.pathname.startsWith('/login')
 
 const version = require('../package.json').version
 $('.version').text('v' + version)
@@ -20,7 +21,9 @@ let failedLogin = false
 const api = (u, opt) => fetch(APIURL + u, Object.assign({credentials: 'include', redirect: 'manual'}, opt || {}))
   .then(res => {
     if (res.type === 'opaqueredirect') {
-      preLogin = page.current
+      if (page.current !== '/login') {
+        preLogin = page.current
+      }
       page.redirect('/login')
       return Promise.reject(new Error('Need login'))
     }
@@ -63,7 +66,11 @@ page('/', middle('apps'), (ctx) => {
 
 /* Login */
 const tmplLogin = require('./templates/login.pug')
-page('/login', (ctx) => {
+page('/login', loginFirstVisit ? middle('isAuthenticated') : (ctx, next) => next(), (ctx) => {
+  if (ctx.api) {
+    return page.redirect('/')
+  }
+
   $('.page').html(tmplLogin({}))
   $('#loginForm').on('submit', e => {
     e.preventDefault()
